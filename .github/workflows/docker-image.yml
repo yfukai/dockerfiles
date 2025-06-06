@@ -4,60 +4,55 @@ on:
   push:
     branches: 
       - main
-    paths:
-      - 'directory1/**'
-      - 'directory2/**'
-      - '.github/workflows/docker-image.yml'
 
 jobs:
-  detect_dirs:
+  generate-matrix:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.set_matrix.outputs.matrix }}
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Detect directories
-        id: set_matrix
-        run: |
-          dirs=$(find . -maxdepth 2 -type f -name Dockerfile | xargs -n1 dirname | sed 's|^\./||')
-          if [ -z "$dirs" ]; then
-            matrix="{\"include\":[]}"
-          else
-            matrix="{\"include\":["
-            first=1
-            for d in $dirs; do
-              if [ $first -eq 0 ]; then
-                matrix+=","
-              fi
-              tag=$( [ -f "$d/configfile" ] && grep -E '^TAG=' "$d/configfile" | cut -d '=' -f2 || echo "latest" )
-              matrix+="{\"folder\":\"$d\", \"tag\":\"$tag\"}"
-              first=0
-            done
-            matrix+="]}"
-          fi
-          echo "Matrix: $matrix"
-          echo "matrix=$matrix" >> $GITHUB_OUTPUT
-  build:
-    needs: detect_dirs
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # ← 差分取得のために全履歴を取る
+      - name: Get changed subdirectories
+        id: set-matrix
+        run: python .github/scripts/list_up_updated_folders.py
+        env:
+          GITHUB_OUTPUT: ${{ github.output }}
+
+  run-on-updated:
+    needs: generate-matrix
+    if: needs.generate-matrix.outputs.matrix != '[]'
     runs-on: ubuntu-latest
     strategy:
-      matrix: ${{ fromJson(needs.detect_dirs.outputs.matrix) }}
+      matrix:
+        include: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push image
-        uses: docker/build-push-action@v2
-        with:
-          context: ${{ matrix.folder }}
-          file: ${{ matrix.folder }}/Dockerfile
-          push: true
-          tags: ghcr.io/${{ github.repository_owner }}/${{ matrix.folder }}:${{ matrix.tag }}
+      - uses: actions/checkout@v3
+      - name: Run job for ${{ matrix.dir }}
+        run: |
+          echo "Changed dir: ${{ matrix.dir }}"
+          ls some_root/${{ matrix.dir }}
+#  build:
+#    needs: generate-matrix
+#    runs-on: ubuntu-latest
+#    strategy:
+#      matrix: ${{ fromJson(needs.detect_dirs.outputs.matrix) }}
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v2
+#      - name: Set up Docker Buildx
+#        uses: docker/setup-buildx-action@v1
+#      - name: Log in to GitHub Container Registry
+#        uses: docker/login-action@v1
+#        with:
+#          registry: ghcr.io
+#          username: ${{ github.actor }}
+#          password: ${{ secrets.GITHUB_TOKEN }}
+#      - name: Build and push image
+#        uses: docker/build-push-action@v2
+#        with:
+#          context: ${{ matrix.folder }}
+#          file: ${{ matrix.folder }}/Dockerfile
+#          push: true
+#          tags: ghcr.io/${{ github.repository_owner }}/${{ matrix.folder }}:${{ matrix.tag }}
