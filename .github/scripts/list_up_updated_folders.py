@@ -16,16 +16,17 @@ changed_dirs = {
     for f in changed_files
     if f.startswith(f"{BASE_DIR}/") and len(Path(f).parts) > 1
 }
+changed_dirs = [d for d in changed_dirs if d.exists() and d.is_dir()]
 
 # Export the JSON output for GitHub Actions
 
 def get_dir_info(directory):
-    """ディレクトリの情報を取得する関数"""
     dir_path = BASE_DIR / directory
+    tag = (dir_path/"version").read_text().strip() if (dir_path/"version").exists() else "latest"
     return {
-        "directory": directory,
-        "dockerfile": str(dir_path / "Dockerfile"),
-        "context": str(dir_path),
+        "directory": dir_path,
+        "name": directory,
+        "tag":tag,
     }
 
 matrix = [get_dir_info(d) for d in sorted(changed_dirs)]
