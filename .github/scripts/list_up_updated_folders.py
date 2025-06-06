@@ -3,7 +3,7 @@ import os
 import json
 from pathlib import Path
 
-BASE_DIR = Path("some_root")
+BASE_DIR = Path("dockerfiles")
 
 # 差分ファイルの一覧を取得
 diff_output = subprocess.check_output(["git", "diff", "--name-only", "origin/main...HEAD"], text=True)

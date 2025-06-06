@@ -32,7 +32,8 @@ jobs:
       - name: Run job for ${{ matrix.dir }}
         run: |
           echo "Changed dir: ${{ matrix.dir }}"
-          ls some_root/${{ matrix.dir }}
+          ls dockerfiles/${{ matrix.dir }}
+  
 #  build:
 #    needs: generate-matrix
 #    runs-on: ubuntu-latest
