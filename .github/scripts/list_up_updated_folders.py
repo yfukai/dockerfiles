@@ -17,8 +17,7 @@ changed_dirs = {
     if f.startswith(f"{BASE_DIR}/") and len(Path(f).parts) > 1
 }
 changed_dirs = [d for d in changed_dirs 
-                if (BASE_DIR/d).exists() and d.is_dir()]
-
+                if (BASE_DIR/d).exists() and (BASE_DIR/d).is_dir()]
 # Export the JSON output for GitHub Actions
 
 def get_dir_info(directory):
