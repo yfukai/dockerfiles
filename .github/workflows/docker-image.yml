@@ -21,19 +21,23 @@ jobs:
         id: detect
         run: |
           dirs=$(find . -maxdepth 2 -type f -name Dockerfile | xargs -n1 dirname | sed 's|^\./||')
-          matrix="{\"include\":["
-          first=1
-          for d in $dirs; do
-            if [ $first -eq 0 ]; then
-              matrix+=","
-            fi
-            tag=$( [ -f "$d/configfile" ] && grep -E 'TAG=' "$d/configfile" | cut -d '=' -f2 || echo "latest" )
-            matrix+="{\"folder\":\"$d\", \"tag\":\"$tag\"}"
-            first=0
-          done
-          matrix+="]}"
+          if [ -z "$dirs" ]; then
+            matrix="{\"include\":[]}"
+          else
+            matrix="{\"include\":["
+            first=1
+            for d in $dirs; do
+              if [ $first -eq 0 ]; then
+                matrix+=","
+              fi
+              tag=$( [ -f "$d/configfile" ] && grep -E '^TAG=' "$d/configfile" | cut -d '=' -f2 || echo "latest" )
+              matrix+="{\"folder\":\"$d\", \"tag\":\"$tag\"}"
+              first=0
+            done
+            matrix+="]}"
+          fi
           echo "Matrix: $matrix"
-          echo "::set-output name=matrix::$matrix"
+          echo "matrix=$matrix" >> $GITHUB_OUTPUT
       - name: Set matrix output
         run: echo "Matrix generated"
   build:
