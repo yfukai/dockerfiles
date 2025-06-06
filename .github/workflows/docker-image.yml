@@ -18,7 +18,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Detect directories
-        id: detect
+        id: set_matrix
         run: |
           dirs=$(find . -maxdepth 2 -type f -name Dockerfile | xargs -n1 dirname | sed 's|^\./||')
           if [ -z "$dirs" ]; then
@@ -38,8 +38,6 @@ jobs:
           fi
           echo "Matrix: $matrix"
           echo "matrix=$matrix" >> $GITHUB_OUTPUT
-      - name: Set matrix output
-        run: echo "Matrix generated"
   build:
     needs: detect_dirs
     runs-on: ubuntu-latest
