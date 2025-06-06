@@ -6,7 +6,7 @@ from pathlib import Path
 BASE_DIR = Path("dockerfiles")
 
 # 差分ファイルの一覧を取得
-diff_output = subprocess.check_output(["git", "diff", "--name-only", "origin/main...HEAD"], text=True)
+diff_output = subprocess.check_output(["git", "diff", "--name-only", "HEAD^...HEAD"], text=True)
 print("Changed files:", diff_output.strip())
 changed_files = diff_output.strip().splitlines()
 

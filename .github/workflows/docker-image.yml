@@ -25,7 +25,7 @@ jobs:
           git branch -a
           git fetch origin main
           git log --oneline --graph --all | head -n 20
-          git diff origin/main...HEAD --name-only
+          git diff HEAD^...HEAD --name-only
 
   run-on-updated:
     needs: generate-matrix
