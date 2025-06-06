@@ -15,4 +15,3 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 RUN uv venv && uv pip install marimo
-
