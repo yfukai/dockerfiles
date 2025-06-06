@@ -13,12 +13,19 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # ← 差分取得のために全履歴を取る
+          fetch-depth: 0 
       - name: Get changed subdirectories
         id: set-matrix
         run: python .github/scripts/list_up_updated_folders.py
         env:
           GITHUB_OUTPUT: ${{ github.output }}
+      - name: Debug git state
+        run: |
+          git remote -v
+          git branch -a
+          git fetch origin main
+          git log --oneline --graph --all | head -n 20
+          git diff origin/main...HEAD --name-only
 
   run-on-updated:
     needs: generate-matrix
