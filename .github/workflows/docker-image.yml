@@ -22,6 +22,7 @@ jobs:
 
   build:
     needs: generate-matrix
+    if: needs.generate-matrix.outputs.matrix != '[]'
     runs-on: ubuntu-latest
     strategy:
       matrix:
