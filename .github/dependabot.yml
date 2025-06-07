@@ -1,0 +1,10 @@
+# Dependabot configuration for GitHub Actions updates.
+# To trigger updates manually, use the "Check for updates" button in the repository's Security tab.
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    commit-message:
+      prefix: "chore(actions):"
