@@ -30,5 +30,6 @@ def get_dir_info(directory):
     }
 
 matrix = [get_dir_info(d) for d in sorted(changed_dirs)]
+print(matrix)
 with open(os.environ["GITHUB_OUTPUT"], "w") as f:
     f.write(f"matrix={json.dumps(matrix)}\n")
