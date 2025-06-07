@@ -10,6 +10,5 @@ RUN apt-get update && apt-get install -y \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
 
-COPY pyproject.toml /app/pyproject.toml
 WORKDIR /app
 RUN uv venv && uv pip install marimo
