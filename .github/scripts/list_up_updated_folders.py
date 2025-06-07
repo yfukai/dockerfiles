@@ -24,7 +24,7 @@ def get_dir_info(directory):
     dir_path = BASE_DIR / directory
     tag = (dir_path/"version").read_text().strip() if (dir_path/"version").exists() else "latest"
     return {
-        "directory": dir_path,
+        "directory": str(dir_path),
         "name": directory,
         "tag":tag,
     }
